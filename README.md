@@ -70,7 +70,7 @@ There are four ways to containerize spring boot application. Let's take a look o
 
 To create docker image of spring boot application with a fat jar `Dockerfile`.
 
-```dockerfile
+```
 FROM amd64/openjdk:14-alpine
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} app.jar
@@ -138,7 +138,7 @@ curl http://localhost:8080/names/hurry
 
 To create docker image of spring boot application with an exploded jar classpath `Dockerfile`.
 
-```dockerfile
+```
  # Stage 0, "builder", extract fat jar
 FROM amd64/openjdk:14-alpine as builder
 ARG JAR_FILE=target/*.jar
@@ -216,7 +216,7 @@ curl http://localhost:8081/names/hurry
 
 To create docker image of spring boot application with a layertools `Dockerfile`.
 
-```dockerfile
+```
 FROM adoptopenjdk:11.0.7_10-jre-hotspot as builder
 WORKDIR /app
 ARG JAR_FILE=target/*.jar
