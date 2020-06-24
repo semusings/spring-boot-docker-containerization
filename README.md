@@ -8,8 +8,9 @@ In microservices world, Spring Boot is one of the very popular Framework. Docker
 run an application in a loosely isolated environment called a container. So, it's very important build right layers of
 your application docker image.
 
-This article will show what are the available option to build docker image for spring boot application.
-Firstly, let's create one very simple spring boot application. 
+This post will show the available options to build docker image for spring boot application.
+
+Let's start with one very simple spring boot application. Then we will build docker image of this application. 
 
 ### Create a Spring Boot application
 
