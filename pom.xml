@@ -229,7 +229,7 @@
                   <goal>build-image</goal>
                 </goals>
                 <configuration>
-                  <imageName>docker.io/bhuwanupadhyay/${project.artifactId}-buildpacks</imageName>
+                  <imageName>docker.io/bhuwanupadhyay/${project.artifactId}-buildpacks:${project.version}</imageName>
                 </configuration>
               </execution>
             </executions>

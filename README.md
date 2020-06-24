@@ -303,7 +303,7 @@ A maven profile to build docker image with plugins: `spring-boot-maven-plugin`.
               <goal>build-image</goal>
             </goals>
             <configuration>
-              <imageName>docker.io/bhuwanupadhyay/${project.artifactId}-buildpacks</imageName>
+              <imageName>docker.io/bhuwanupadhyay/${project.artifactId}-buildpacks:${project.version}</imageName>
             </configuration>
           </execution>
         </executions>
