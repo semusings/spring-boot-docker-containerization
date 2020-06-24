@@ -1,11 +1,11 @@
  # Stage 0, "builder", extract fat jar
-FROM amd64/openjdk:11-alpine as builder
+FROM amd64/openjdk:14-alpine as builder
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} /target/app.jar
 RUN mkdir -p /target/dependency && (cd /target/dependency; jar -xf ../*.jar)
 
 # Stage 1, "boot-app"
-FROM amd64/openjdk:11-alpine
+FROM amd64/openjdk:14-alpine
 RUN addgroup -S spring && adduser -S spring -G spring
 USER spring:spring
 COPY --from=builder /target/dependency/BOOT-INF/lib /app/lib
