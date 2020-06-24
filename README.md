@@ -64,7 +64,7 @@ class NameRoutes(private val handler: NameHandler) {
 
 ## Docker Containerization
 
-There are four ways to containerze spring boot application. Let's take a look one by one.
+There are four ways to containerize spring boot application. Let's take a look one by one.
 
 ### 1. Running fat jar in docker
 
