@@ -4,9 +4,10 @@ Blog: <https://bhuwanupadhyay/blog/spring-boot-docker-containerization/>
 
 ## Walkthrough
 
-In microservices world, Spring Boot is one of the very popular Framework. Docker provides the ability to package and 
-run an application in a loosely isolated environment called a container. So, it's very important build right layers of
-your application docker image.
+In microservices world, Spring Boot is one of the very popular Framework to build the microservices 
+and docker images used to deploy the microservice in cloud native environment. Why ? 
+Because, docker provides the ability to package and run an application in a loosely isolated environment called a container. 
+So, it's very important build right layers of your application docker image.
 
 This post will show the available options to build docker image for spring boot application.
 
