@@ -11,4 +11,4 @@ USER spring:spring
 COPY --from=builder /target/dependency/BOOT-INF/lib /app/lib
 COPY --from=builder /target/dependency/BOOT-INF/classes /app
 COPY --from=builder /target/dependency/META-INF /app
-ENTRYPOINT ["java", "-cp" , "app:app/lib/*", "io.github.bhuwanupadhyay.example.SpringBoot"]
+ENTRYPOINT ["java", "-cp" , "app:app/lib/*", "io.github.bhuwanupadhyay.example.SpringBootKt"]

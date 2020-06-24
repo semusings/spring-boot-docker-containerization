@@ -62,10 +62,11 @@ class NameRoutes(private val handler: NameHandler) {
 }
 ```
 
-### Running fat jar in docker
+## Docker Containerization
 
-The simple way to create docker image of spring boot application is by running fat jar, for this docker file will look 
-like as below:
+### 1. Running fat jar in docker
+
+To create docker image of spring boot application with a fat jar `Dockerfile`.
 
 ```dockerfile
 FROM amd64/openjdk:14-alpine
@@ -74,44 +75,44 @@ COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java", "-jar" , "/app.jar"]
 ``` 
 
-A maven profile to build docker image using chain of plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin` 
+A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`.
 
 ```xml
 <profile>
-    <id>fatJar</id>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.spotify</groupId>
-                <artifactId>dockerfile-maven-plugin</artifactId>
-                <version>1.4.13</version>
-                <executions>
-                    <execution>
-                        <id>default</id>
-                        <goals>
-                            <goal>build</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <repository>docker.io/bhuwanupadhyay/${project.artifactId}-fat-jar</repository>
-                    <dockerfile>${project.basedir}/src/main/docker/fat-jar.dockerfile</dockerfile>
-                    <tag>${project.version}</tag>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+  <id>fatJar</id>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <version>1.4.13</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <repository>docker.io/bhuwanupadhyay/${project.artifactId}-fat-jar</repository>
+          <dockerfile>${project.basedir}/src/main/docker/fat-jar.dockerfile</dockerfile>
+          <tag>${project.version}</tag>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </profile>
 ```
 
@@ -130,3 +131,206 @@ curl http://localhost:8080/names/hurry
 # Output
 { "givenName": "hurry"}
 ```
+
+### 2. Running exploded jar classpath in docker
+
+To create docker image of spring boot application with an exploded jar classpath `Dockerfile`.
+
+```dockerfile
+ # Stage 0, "builder", extract fat jar
+FROM amd64/openjdk:14-alpine as builder
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} /target/app.jar
+RUN mkdir -p /target/dependency && (cd /target/dependency; jar -xf ../*.jar)
+
+# Stage 1, "boot-app"
+FROM amd64/openjdk:14-alpine
+RUN addgroup -S spring && adduser -S spring -G spring
+USER spring:spring
+COPY --from=builder /target/dependency/BOOT-INF/lib /app/lib
+COPY --from=builder /target/dependency/BOOT-INF/classes /app
+COPY --from=builder /target/dependency/META-INF /app
+ENTRYPOINT ["java", "-cp" , "app:app/lib/*", "io.github.bhuwanupadhyay.example.SpringBoot"]
+``` 
+
+A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
+
+```xml
+<profile>
+  <id>flatClasspath</id>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <version>1.4.13</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <repository>docker.io/bhuwanupadhyay/${project.artifactId}-flat-classpath</repository>
+          <dockerfile>${project.basedir}/src/main/docker/flat-classpath.dockerfile</dockerfile>
+          <tag>${project.version}</tag>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</profile>
+```
+
+To build and test run the following command:
+
+```bash
+# Build docker image
+mvn clean install -PflatClasspath
+
+# Run app
+docker run -d -p8081:8080 docker.io/bhuwanupadhyay/spring-boot-docker-containerization-flat-classpath:0.0.1-SNAPSHOT
+
+# Test API
+curl http://localhost:8081/names/hurry
+
+# Output
+{ "givenName": "hurry"}
+```
+
+### 3. Running layertools with custom dockerfile [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle/#layering-docker-images)
+
+To create docker image of spring boot application with a layertools `Dockerfile`.
+
+```dockerfile
+FROM adoptopenjdk:11.0.7_10-jre-hotspot as builder
+WORKDIR /app
+ARG JAR_FILE=target/*.jar
+COPY ${JAR_FILE} app.jar
+RUN java -Djarmode=layertools -jar app.jar extract
+
+FROM adoptopenjdk:11.0.7_10-jre-hotspot
+WORKDIR /app
+COPY --from=builder app/dependencies/ ./
+COPY --from=builder app/spring-boot-loader/ ./
+COPY --from=builder app/snapshot-dependencies/ ./
+COPY --from=builder app/application/ ./
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+``` 
+
+A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
+
+```xml
+<profile>
+  <id>layertools</id>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <layers>
+            <enabled>true</enabled>
+          </layers>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>com.spotify</groupId>
+        <artifactId>dockerfile-maven-plugin</artifactId>
+        <version>1.4.13</version>
+        <executions>
+          <execution>
+            <id>default</id>
+            <goals>
+              <goal>build</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <repository>docker.io/bhuwanupadhyay/${project.artifactId}-layertools</repository>
+          <dockerfile>${project.basedir}/src/main/docker/layertools.dockerfile</dockerfile>
+          <tag>${project.version}</tag>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</profile>
+```
+
+To build and test run the following command:
+
+```bash
+# Build docker image
+mvn clean install -Playertools
+
+# Run app
+docker run -d -p8082:8080 docker.io/bhuwanupadhyay/spring-boot-docker-containerization-layertools:0.0.1-SNAPSHOT
+
+# Test API
+curl http://localhost:8082/names/hurry
+
+# Output
+{ "givenName": "hurry"}
+```
+
+### 4. Running with Cloud Native Buildpacks. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/#build-image)
+
+A maven profile to build docker image with plugins: `spring-boot-maven-plugin`. 
+
+```xml
+<profile>
+  <id>buildpacks</id>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>build-image</goal>
+            </goals>
+            <configuration>
+              <imageName>docker.io/bhuwanupadhyay/${project.artifactId}-buildpacks</imageName>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+</profile>
+```
+
+To build and test run the following command:
+
+```bash
+# Build docker image
+mvn clean install -Pbuildpacks
+
+# Run app
+docker run -d -p8083:8080 docker.io/bhuwanupadhyay/spring-boot-docker-containerization-buildpacks:0.0.1-SNAPSHOT
+
+# Test API
+curl http://localhost:8083/names/hurry
+
+# Output
+{ "givenName": "hurry"}
+```
+
+We are done, Thanks for reading! [Github](https://github.com/BhuwanUpadhyay/spring-boot-docker-containerization)
+
+## References
+- https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle
+- https://github.com/spotify/dockerfile-maven
