@@ -138,7 +138,7 @@ curl http://localhost:8080/names/hurry
 To create docker image of spring boot application with an exploded jar classpath `Dockerfile`.
 
 ```
- # Stage 0, "builder", extract fat jar
+# Stage 0, "builder", extract fat jar
 FROM amd64/openjdk:14-alpine as builder
 ARG JAR_FILE=target/*.jar
 COPY ${JAR_FILE} /target/app.jar
