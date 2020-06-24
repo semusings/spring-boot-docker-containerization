@@ -35,7 +35,7 @@ curl https://start.spring.io/starter.tgz \
 
 #### 2. Add the API that returns your given name
 
-Create `NameManager.kt` under package `io.github.bhuwanupadhyay.example`, and add the following text:
+Create [`NameManager.kt`](https://github.com/BhuwanUpadhyay/spring-boot-docker-containerization/blob/master/src/main/kotlin/io/github/bhuwanupadhyay/example/NameManager.kt) under package `io.github.bhuwanupadhyay.example`, and add the following text:
 
 ```kotlin
 @Component
