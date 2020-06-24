@@ -9,7 +9,6 @@ run an application in a loosely isolated environment called a container. So, it'
 your application docker image.
 
 This article will show what are the available option to build docker image for spring boot application.
-
 Firstly, let's create one very simple spring boot application. 
 
 ### Create a Spring Boot application
@@ -212,9 +211,9 @@ curl http://localhost:8081/names/hurry
 { "givenName": "hurry"}
 ```
 
-### 3. Running layertools with custom dockerfile [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle/#layering-docker-images)
+### 3. Running layertools with custom dockerfile 
 
-To create docker image of spring boot application with a layertools `Dockerfile`.
+To create docker image of spring boot application with a layertools `Dockerfile`. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle/#layering-docker-images)
 
 ```
 FROM adoptopenjdk:11.0.7_10-jre-hotspot as builder
@@ -287,9 +286,9 @@ curl http://localhost:8082/names/hurry
 { "givenName": "hurry"}
 ```
 
-### 4. Running with Cloud Native Buildpacks. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/#build-image)
+### 4. Running with Cloud Native Buildpacks.
 
-A maven profile to build docker image with plugins: `spring-boot-maven-plugin`. 
+A maven profile to build docker image with plugins: `spring-boot-maven-plugin`. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/#build-image) 
 
 ```xml
 <profile>
