@@ -7,7 +7,7 @@ Blog: <https://bhuwanupadhyay/blog/spring-boot-docker-containerization/>
 In microservices world, Spring Boot is one of the very popular Framework to build the microservices 
 and docker could be default choice to run application in cloud native environment. Why ? 
 Because, docker provides the ability to package and run an application in a loosely isolated environment called a container. 
-So, it's very important build right layers of your application docker image.
+So, it's very important build right layers of docker image for your application.
 
 This post will show the available options to build docker image for spring boot application.
 
