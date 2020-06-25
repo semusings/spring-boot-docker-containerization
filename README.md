@@ -4,14 +4,13 @@ Blog: <https://bhuwanupadhyay/blog/spring-boot-docker-containerization/>
 
 ## Walkthrough
 
-In microservices world, Spring Boot is one of the very popular Framework to build the microservices 
-and docker could be default choice to run application in cloud native environment. Why ? 
-Because, docker provides the ability to package and run an application in a loosely isolated environment called a container. 
-So, it's very important build right layers of docker image for your application.
+In the microservices world, Spring Boot is one of the very popular framework to build the microservices and docker could be the default choice to run the application in a cloud-native environment. Why? 
+Because docker provides the ability to package and run an application in a loosely isolated environment called a container. 
+So, it's very important to build the right layers of docker image for your application.
 
-This post will show the available options to build docker image for spring boot application.
+This post will show the available options to build a docker image for spring boot application.
 
-Let's start with one very simple spring boot application. Then we will build docker image of this application. 
+Let's start with one very simple spring boot application. Then we will build a docker image of this application. 
 
 ### Create a Spring Boot application
 
@@ -69,7 +68,7 @@ There are four ways to containerize spring boot application. Let's take a look o
 
 ### 1. Running fat jar in docker
 
-To create docker image of spring boot application with a fat jar `Dockerfile`.
+To create a docker image of spring boot application with a fat jar `Dockerfile`.
 
 ```
 FROM amd64/openjdk:14-alpine
@@ -78,7 +77,7 @@ COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java", "-jar" , "/app.jar"]
 ``` 
 
-A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`.
+A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`.
 
 ```xml
 <profile>
@@ -122,7 +121,7 @@ A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `
 To build and test run the following command:
 
 ```bash
-# Build docker image
+# Build a docker image
 mvn clean install -PfatJar
 
 # Run app
@@ -137,7 +136,7 @@ curl http://localhost:8080/names/hurry
 
 ### 2. Running exploded jar classpath in docker
 
-To create docker image of spring boot application with an exploded jar classpath `Dockerfile`.
+To create a docker image of spring boot application with an exploded jar classpath `Dockerfile`.
 
 ```
 # Stage 0, "builder", extract fat jar
@@ -156,7 +155,7 @@ COPY --from=builder /target/dependency/META-INF /app
 ENTRYPOINT ["java", "-cp" , "app:app/lib/*", "io.github.bhuwanupadhyay.example.SpringBoot"]
 ``` 
 
-A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
+A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
 
 ```xml
 <profile>
@@ -200,7 +199,7 @@ A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `
 To build and test run the following command:
 
 ```bash
-# Build docker image
+# Build a docker image
 mvn clean install -PflatClasspath
 
 # Run app
@@ -215,7 +214,7 @@ curl http://localhost:8081/names/hurry
 
 ### 3. Running layertools with custom dockerfile 
 
-To create docker image of spring boot application with a layertools `Dockerfile`. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle/#layering-docker-images)
+To create a docker image of spring boot application with a layertools `Dockerfile`. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle/#layering-docker-images)
 
 ```
 FROM adoptopenjdk:11.0.7_10-jre-hotspot as builder
@@ -233,7 +232,7 @@ COPY --from=builder app/application/ ./
 ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
 ``` 
 
-A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
+A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
 
 ```xml
 <profile>
@@ -275,7 +274,7 @@ A maven profile to build docker image with plugins: `spring-boot-maven-plugin` `
 To build and test run the following command:
 
 ```bash
-# Build docker image
+# Build a docker image
 mvn clean install -Playertools
 
 # Run app
@@ -319,7 +318,7 @@ A maven profile to build docker image with plugins: `spring-boot-maven-plugin`. 
 To build and test run the following command:
 
 ```bash
-# Build docker image
+# Build a docker image
 mvn clean install -Pbuildpacks
 
 # Run app
