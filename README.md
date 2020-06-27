@@ -4,20 +4,20 @@ Blog: <https://bhuwanupadhyay/blog/spring-boot-docker-containerization/>
 
 ## Walkthrough
 
-In the microservices world, Spring Boot is one of the very popular framework to build the microservices and docker could be the default choice to run the application in a cloud-native environment. Why? 
-Because docker provides the ability to package and run an application in a loosely isolated environment called a container. So, it's very important to build the right layers of the docker image for your application.
+**Spring Boot** is one of the very popular framework to build the microservices and the docker container is the default choice to run the application in a cloud-native environment.
 
-This post will show the available options to build a docker image for spring boot application.
+<!--more--> 
 
-Let's start with one very simple spring boot application. Then we will build a docker image of this application. 
+**Docker** provides the ability to package and run an application in a loosely isolated environment called a container. So, it's very important to build the right layers of the docker image for your application.
 
-### Create a Spring Boot application
+This blog post shows the available options to build a docker image for the spring boot application. Before deep into how to build the docker image, Let's create one very simple spring boot application that will return the given name as a response. After that, we will explore how to build a docker image of this application. 
+
+## Create a Spring Boot application
 
 To create a Spring Boot application, we'll use Spring Initializr. The application that we'll create uses:
+`Spring Boot` `Spring WebFlux` `Spring Actuator` `Kotlin`
 
-`Spring Boot 2.3.1.RELEASE` `Kotlin` `Spring WebFlux` `Spring Actuator`
-
-#### 1. Generate the application by using Spring Initializr
+### Initialize Project
 
 ```bash
 NAME='Spring Boot Docker Containerization' && \
@@ -32,9 +32,9 @@ curl https://start.spring.io/starter.tgz \
     -o demo.tgz && tar -xzvf demo.tgz && rm -rf demo.tgz
 ```
 
-#### 2. Add the API that returns your given name
+###  API Example
 
-Create [`NameManager.kt`](https://github.com/BhuwanUpadhyay/spring-boot-docker-containerization/blob/master/src/main/kotlin/io/github/bhuwanupadhyay/example/NameManager.kt) under package `io.github.bhuwanupadhyay.example`, and add the following text:
+Create [NameManager.kt](https://github.com/BhuwanUpadhyay/spring-boot-docker-containerization/blob/master/src/main/kotlin/io/github/bhuwanupadhyay/example/NameManager.kt) under package `io.github.bhuwanupadhyay.example` and add the following text:
 
 ```kotlin
 @Component
@@ -65,9 +65,9 @@ class NameRoutes(private val handler: NameHandler) {
 
 There are four ways to containerize spring boot application. Let's take a look one by one.
 
-### 1. Running fat jar in docker
+### Using fat jar
 
-To create a docker image of spring boot application with a fat jar `Dockerfile`.
+Dockerfile to create a docker image of spring boot application with a fat jar.
 
 ```dockerfile
 FROM amd64/openjdk:14-alpine
@@ -76,7 +76,7 @@ COPY ${JAR_FILE} app.jar
 ENTRYPOINT ["java", "-jar" , "/app.jar"]
 ``` 
 
-A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`.
+A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` and `dockerfile-maven-plugin`.
 
 ```xml
 <profile>
@@ -133,9 +133,9 @@ curl http://localhost:8080/names/hurry
 { "givenName": "hurry"}
 ```
 
-### 2. Running exploded jar classpath in docker
+### Using classpath in exploded jar
 
-To create a docker image of spring boot application with an exploded jar classpath `Dockerfile`.
+Dockerfile to create a docker image of spring boot application with an exploded jar.
 
 ```dockerfile
 # Stage 0, "builder", extract fat jar
@@ -154,7 +154,7 @@ COPY --from=builder /target/dependency/META-INF /app
 ENTRYPOINT ["java", "-cp" , "app:app/lib/*", "io.github.bhuwanupadhyay.example.SpringBoot"]
 ``` 
 
-A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
+A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` and `dockerfile-maven-plugin`. 
 
 ```xml
 <profile>
@@ -211,9 +211,9 @@ curl http://localhost:8081/names/hurry
 { "givenName": "hurry"}
 ```
 
-### 3. Running layertools with custom dockerfile 
+### Using layertools 
 
-To create a docker image of spring boot application with a layertools `Dockerfile`. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/reference/htmlsingle/#layering-docker-images)
+Dockerfile to create a docker image of spring boot application with a layertools.
 
 ```dockerfile
 FROM adoptopenjdk:11.0.7_10-jre-hotspot as builder
@@ -231,7 +231,7 @@ COPY --from=builder app/application/ ./
 ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
 ``` 
 
-A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` `dockerfile-maven-plugin`. 
+A maven profile to build a docker image with plugins: `spring-boot-maven-plugin` and `dockerfile-maven-plugin`. 
 
 ```xml
 <profile>
@@ -286,9 +286,9 @@ curl http://localhost:8082/names/hurry
 { "givenName": "hurry"}
 ```
 
-### 4. Running with Cloud Native Buildpacks.
+### Using Buildpacks.
 
-A maven profile to build docker image with plugins: `spring-boot-maven-plugin`. [Supported >= Spring 2.3.0.RELEASE](https://docs.spring.io/spring-boot/docs/2.3.0.RELEASE/maven-plugin/reference/html/#build-image) 
+A maven profile to build docker image with plugins: `spring-boot-maven-plugin`. 
 
 ```xml
 <profile>
